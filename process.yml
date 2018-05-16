@@ -1,0 +1,8 @@
+
+app:
+  scripts: ./app/app.js
+  name: elme
+  env:
+  env_production:
+    NODE_ENV: production
+    HOST: localhost
