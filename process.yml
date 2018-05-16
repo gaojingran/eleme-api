@@ -1,4 +1,0 @@
-
-apps:
-  script: ./app/app.js
-  name: elmet
