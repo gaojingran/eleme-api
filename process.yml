@@ -1,5 +1,5 @@
 
-app:
+apps:
   scripts: ./app/app.js
   name: elme
   env:
