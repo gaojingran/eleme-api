@@ -23,11 +23,8 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use('/elm', elm)
 
-const host = process.env.HOST || '0.0.0.0'
-const port = process.env.PORT || 3333
-
-app.listen(host, port, function() {
+app.listen('3333', function() {
   console.log('***************************')
-  console.log(`app listening on port ${port} !`)
+  console.log(`app listening on port 3333`)
   console.log('***************************')
 })

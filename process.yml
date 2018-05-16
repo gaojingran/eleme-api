@@ -1,8 +1,4 @@
 
 apps:
-  scripts: ./app/app.js
-  name: elme
-  env:
-  env_production:
-    NODE_ENV: production
-    HOST: localhost
+  script: ./app/app.js
+  name: elmet
