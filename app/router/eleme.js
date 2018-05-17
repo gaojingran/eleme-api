@@ -631,6 +631,8 @@ router.get('/restaurants', (req, res, next) => {
   const pickArray = ['latitude', 'longitude', 'limit', 'offset', 'terminal', 'rank_id', 'extra_filters', 'order_by', 'super_vip', 'keywords']
   const options = pick(req.query, ['delivery_mode', 'extras', 'restaurant_category_ids', 'activity_types', 'average_cost_ids', 'support_ids'])
   const tailUrl =  Object.keys(options).map(v => formatArrayQuery(req.query[v], v)).join('&')
+  console.log('url', `${baseUrl}/shopping/v3/restaurants
+  ?${queryString(pick(req.query, pickArray))}]&${tailUrl}`)
   axios.get(`${baseUrl}/shopping/v3/restaurants
     ?${queryString(pick(req.query, pickArray))}]&${tailUrl}`)
   .then(({ data }) => {
@@ -654,6 +656,8 @@ router.get('/restaurants', (req, res, next) => {
     })
   }).catch(err => {
     const errmsg = err.response.data.message || err.toString()
+    console.log('data',err.response.data)
+    console.log('err', err.toString())
     res.json({
       errmsg,
       code: 1,
