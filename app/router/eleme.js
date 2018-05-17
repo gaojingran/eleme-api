@@ -22,7 +22,8 @@ const request = (method, url, cookie = "", data = {}, params = {}) => {
       resolve(data)
     }).catch(err => {
       const errmsg = err.response.data.message || err.toString()
-      reject(errmsg)
+      const name = err.response.data.name || ''
+      reject({ errmsg, name })
     })
   })
 }
@@ -47,13 +48,40 @@ router.post('/mobile_send_code', (req, res, next) => {
       result: data,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg, name }) => {
     res.json({
-      errmsg: err,
+      errmsg,
+      name,
       code: 1,
     })
   })
 })
+
+/**
+ * 获取校验码
+ * https://h5.ele.me/restapi/eus/v3/captchas
+ * {captcha_str: 手机号}
+ */
+router.post('/captchas', (req, res, next) => {
+  const cookie = req.get('Cookie') || ''
+  request(
+    'POST',
+    `${baseUrl}/eus/v3/captchas`,
+    cookie,
+    req.body.data
+  ).then(({ data }) => {
+    res.json({
+      result: data,
+      code: 0,
+    })
+  }).catch(({ errmsg, name }) => {
+    res.json({
+      errmsg,
+      code: 1,
+    })
+  })
+})
+
 
 /**
  * 手机登陆
@@ -80,9 +108,9 @@ router.post('/login_by_mobile', (req, res, next) => {
       result: data.data,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -104,9 +132,9 @@ router.get('/users', (req, res, next) => {
       result: data,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -129,9 +157,9 @@ router.get('/address', (req, res, next) => {
       result: data,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -153,9 +181,9 @@ router.get('/del_address', (req, res, next) => {
       result: true,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -188,9 +216,9 @@ router.post('/add_address', (req, res, next) => {
       result: true,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -213,9 +241,9 @@ router.post('/update_address', (req, res, next) => {
       result: true,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -240,9 +268,9 @@ router.get('/hongbaos', (req, res, next) => {
       result: data,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -273,9 +301,9 @@ router.get('/search_nearby', (req, res, next) => {
       result: data,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -304,9 +332,9 @@ router.get('/orders', (req, res, next) => {
       result,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -328,7 +356,7 @@ router.get('/order-snapshot', (req, res, next) => {
       result: data,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
       errmsg: err,
       code: 1,
@@ -352,9 +380,9 @@ router.get('/order-desc', (req, res, next) => {
       result: data,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -366,19 +394,19 @@ router.get('/order-desc', (req, res, next) => {
  */
 
 router.get('/restaurant_menu', (req, res, next) => {
-  const cookie = req.get('Cookie') || ''
+  // const cookie = req.get('Cookie') || ''
   request(
     'GET',
     `${baseUrl}/shopping/v2/menu?${queryString(req.query)}`,
-    cookie,
+    // cookie,
   ).then(({ data }) => {
     res.json({
       result: data,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -389,22 +417,22 @@ router.get('/restaurant_menu', (req, res, next) => {
  * https://h5.ele.me/restapi/ugc/v3/restaurants/156544579/ratings?has_content=true&offset=0&limit=8
  */
 router.get('/restaurant_ratings', (req, res, next) => {
-  const cookie = req.get('Cookie') || ''
+  // const cookie = req.get('Cookie') || ''
   const pickArray = ['has_content', 'offset', 'limit']
   let url = `${baseUrl}/ugc/v3/restaurants/${req.query.restaurant_id}/ratings?${pick(queryString(req.query), pickArray)}`
   req.query.tag_name ? url += `&tag_name=${encodeURIComponent(req.query.tag_name)}` : url += ''
   request(
     'GET',
     url,
-    cookie,
+    // cookie,
   ).then(({ data }) => {
     res.json({
       result: data,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -415,19 +443,19 @@ router.get('/restaurant_ratings', (req, res, next) => {
  *  https://h5.ele.me/restapi/ugc/v2/restaurants/156031680/ratings/tags
  */
 router.get('/rating_tags', (req, res, next) => {
-  const cookie = req.get('Cookie') || ''
+  // const cookie = req.get('Cookie') || ''
   request(
     'GET',
     `${baseUrl}/ugc/v2/restaurants/${req.query.restaurant_id}/ratings/tags`,
-    cookie,
+    // cookie,
   ).then(({ data }) => {
     res.json({
       result: data,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -438,19 +466,19 @@ router.get('/rating_tags', (req, res, next) => {
  * https://h5.ele.me/restapi/ugc/v2/restaurants/156031680/ratings/scores
  */
 router.get('/rating_scores', (req, res, next) => {
-  const cookie = req.get('Cookie') || ''
+  // const cookie = req.get('Cookie') || ''
   request(
     'GET',
     `${baseUrl}/ugc/v2/restaurants/${req.query.restaurant_id}/ratings/scores`,
-    cookie,
+    // cookie,
   ).then(({ data }) => {
     res.json({
       result: data,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -461,21 +489,21 @@ router.get('/rating_scores', (req, res, next) => {
  * https://h5.ele.me/restapi/shopping/restaurant/156544579
  */
 router.get('/restaurant_byid', (req, res, next) => {
-  const cookie = req.get('Cookie') || ''
+  // const cookie = req.get('Cookie') || ''
   const { restaurant_id } = req.query
   const pickArray = ['latitude', 'longitude', 'terminal']
   request(
     'GET',
     `${baseUrl}/shopping/restaurant/${restaurant_id}?${queryString(pick(req.query, pickArray))}&${formatArrayQuery(req.query.extras, 'extras')}`,
-    cookie,
+    // cookie,
   ).then(({ data }) => {
     res.json({
       result: data,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -501,9 +529,9 @@ router.get('/entry', (req, res, next) => {
       result,
       code: 0
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -529,9 +557,9 @@ router.get('/banner', (req, res, next) => {
       result,
       code: 0
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -555,9 +583,9 @@ router.get('/food_sift_factors', (req, res, next) => {
       result: data,
       code: 0
     })
-  }).then(err => {
+  }).then(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -576,7 +604,7 @@ router.get('/total_category', (req, res, next) => {
       result: data,
       code: 0
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
       errmsg,
       code: 1,
@@ -598,9 +626,9 @@ router.get('/filter_attributes', (req, res, next) => {
       result: data,
       code: 0
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -742,9 +770,9 @@ router.get('/recommendation', (req, res, next) => {
       result: data,
       code: 0,
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
@@ -763,9 +791,9 @@ router.get('/hot_keywords', (req, res, next) => {
       result: data,
       code: 0
     })
-  }).catch(err => {
+  }).catch(({ errmsg }) => {
     res.json({
-      errmsg: err,
+      errmsg,
       code: 1,
     })
   })
