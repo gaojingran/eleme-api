@@ -394,11 +394,11 @@ router.get('/order-desc', (req, res, next) => {
  */
 
 router.get('/restaurant_menu', (req, res, next) => {
-  // const cookie = req.get('Cookie') || ''
+  const cookie = req.get('Cookie') || ''
   request(
     'GET',
     `${baseUrl}/shopping/v2/menu?${queryString(req.query)}`,
-    // cookie,
+    cookie,
   ).then(({ data }) => {
     res.json({
       result: data,
@@ -417,14 +417,14 @@ router.get('/restaurant_menu', (req, res, next) => {
  * https://h5.ele.me/restapi/ugc/v3/restaurants/156544579/ratings?has_content=true&offset=0&limit=8
  */
 router.get('/restaurant_ratings', (req, res, next) => {
-  // const cookie = req.get('Cookie') || ''
+  const cookie = req.get('Cookie') || ''
   const pickArray = ['has_content', 'offset', 'limit']
   let url = `${baseUrl}/ugc/v3/restaurants/${req.query.restaurant_id}/ratings?${pick(queryString(req.query), pickArray)}`
   req.query.tag_name ? url += `&tag_name=${encodeURIComponent(req.query.tag_name)}` : url += ''
   request(
     'GET',
     url,
-    // cookie,
+    cookie,
   ).then(({ data }) => {
     res.json({
       result: data,
@@ -443,11 +443,11 @@ router.get('/restaurant_ratings', (req, res, next) => {
  *  https://h5.ele.me/restapi/ugc/v2/restaurants/156031680/ratings/tags
  */
 router.get('/rating_tags', (req, res, next) => {
-  // const cookie = req.get('Cookie') || ''
+  const cookie = req.get('Cookie') || ''
   request(
     'GET',
     `${baseUrl}/ugc/v2/restaurants/${req.query.restaurant_id}/ratings/tags`,
-    // cookie,
+    cookie,
   ).then(({ data }) => {
     res.json({
       result: data,
@@ -466,11 +466,11 @@ router.get('/rating_tags', (req, res, next) => {
  * https://h5.ele.me/restapi/ugc/v2/restaurants/156031680/ratings/scores
  */
 router.get('/rating_scores', (req, res, next) => {
-  // const cookie = req.get('Cookie') || ''
+  const cookie = req.get('Cookie') || ''
   request(
     'GET',
     `${baseUrl}/ugc/v2/restaurants/${req.query.restaurant_id}/ratings/scores`,
-    // cookie,
+    cookie,
   ).then(({ data }) => {
     res.json({
       result: data,
@@ -489,13 +489,13 @@ router.get('/rating_scores', (req, res, next) => {
  * https://h5.ele.me/restapi/shopping/restaurant/156544579
  */
 router.get('/restaurant_byid', (req, res, next) => {
-  // const cookie = req.get('Cookie') || ''
+  const cookie = req.get('Cookie') || ''
   const { restaurant_id } = req.query
   const pickArray = ['latitude', 'longitude', 'terminal']
   request(
     'GET',
     `${baseUrl}/shopping/restaurant/${restaurant_id}?${queryString(pick(req.query, pickArray))}&${formatArrayQuery(req.query.extras, 'extras')}`,
-    // cookie,
+    cookie,
   ).then(({ data }) => {
     res.json({
       result: data,
